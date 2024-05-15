@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Výsledky hledání</h3>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        {% for item in books %}
+        <div class="col-2 m-2 p-2 card">
+            <a href="{{url_for('book_detail', id = item.id)}}"
+               style="color: inherit; text-decoration: none;">
+                <img src="static/book_img/{{ item.img_name }}" height=100>
+            </a>
+
+            <h5>{{ item.name }}</h5>
+            <h6>{{ item.author }}</h6>
+            <p>{{ item.price }} CZK <br>
+                <a href="{{ url_for('add_to_cart', item_id=item.id) }}">
+                    DO KOŠÍKU
+                </a>
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+{% endblock %}

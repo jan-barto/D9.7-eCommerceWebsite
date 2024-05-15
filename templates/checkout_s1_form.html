@@ -1,0 +1,89 @@
+<form id="orderForm" action="{{ url_for('checkout_step_two') }}" method="POST">
+    <div class="form-group">
+        <p>Kontaktní email</p>
+        <label class="form-label" for="email">Email:</label>
+        <input class="form-control" type="email" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+        <p>Způsob dodání</p>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="delivery_personal" name="delivery" value="personal"
+                   required>
+            <label class="form-check-label" for="delivery_personal">Osobní vyzvednutí (+ 0 CZK)</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="delivery_transport" name="delivery" value="transport">
+            <label class="form-check-label" for="delivery_transport">Kurýrní službou (+ 99 CZK)</label>
+        </div>
+    </div>
+    <div class="form-group">
+        <p>Způsob platby</p>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="payment_bank_transfer" name="payment" value="bank_transfer"
+                   required>
+            <label class="form-check-label" for="payment_bank_transfer">Platba na účet předem (+ 0 CZK)</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="payment_cod" name="payment" value="cod">
+            <label class="form-check-label" for="payment_cod">Dobírka (+ 30 CZK)</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="payment_on_spot" name="payment" value="on_spot">
+            <label class="form-check-label" for="payment_on_spot">Hotově při vyzvednutí (+ 0 CZK)</label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <p>Fakturační údaje</p>
+        <label class="form-label" for="billing_name">Jméno a příjmení:</label>
+        <input class="form-control" type="text" id="billing_name" name="billing_name" required>
+        <label for="billing_address">Adresa:</label>
+        <input type="text" class="form-control" id="billing_address" name="billing_address" required>
+        <label for="billing_city">Město:</label>
+        <input type="text" class="form-control" id="billing_city" name="billing_city" required>
+        <label for="billing_zip">PSČ:</label>
+        <input type="text" class="form-control" id="billing_zip" name="billing_zip" required>
+    </div>
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" name="another_address" id="DifferentShippingAddress">
+        <label class="form-check-label" for="DifferentShippingAddress">Odlišná dodací adresa</label>
+    </div>
+
+    <div id="ShippingAddress" style="display: none;">
+        <div class="form-group">
+            <p>Dodací údaje</p>
+            <label for="shipping_name">Jméno a Příjmení:</label>
+            <input type="text" class="form-control" id="shipping_name" name="shipping_name">
+            <label for="shipping_address">Adresa:</label>
+            <input type="text" class="form-control" id="shipping_address" name="shipping_address">
+            <label for="shipping_city">Město:</label>
+            <input type="text" class="form-control" id="shipping_city" name="shipping_city">
+            <label for="shipping_zip">PSČ:</label>
+            <input type="text" class="form-control" id="shipping_zip" name="shipping_zip">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="terms_agreement" name="terms_agreement" required>
+            <label class="form-check-label" for="terms_agreement">
+                Souhlasím s
+                <a href="{{ url_for('business_conditions') }}">obchodními podmínkami</a>
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="data_processing_agreement"
+                   name="data_processing_agreement" required>
+            <label class="form-check-label" for="data_processing_agreement">
+                Jsem seznámen/a a beru na vědomí informace o
+                <a href="{{ url_for('personal_data') }}">zpracování osobních údajů</a>
+            </label>
+        </div>
+    </div>
+    <div class="row d-flex justify-content-end">
+        <div class="col-5">
+        <button type="submit" class="btn btn-success">Rekapitulace objednávky</button>
+            </div>
+    </div>
+    <script src="/static/script.js"></script>
+</form>

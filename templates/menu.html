@@ -1,0 +1,24 @@
+<form action="/" method="POST">
+    <p>
+
+
+    <h6><label>Kategorie</label></h6>
+    <p>
+        {% for cat_item in settings.categories %}
+
+        <input type="checkbox" id="cat_{{cat_item[0]}}" name="category" value="{{ cat_item[0] }}" {{'checked' if cat_item[1] == 'checked'}}>
+        <label for="cat_{{cat_item[0]}}">{{ cat_item[0] }}</label><br>
+
+        {% endfor %}
+    </p>
+
+    <h6><label>Autoři</label></h6>
+    <p>
+        {% for aut_item in settings.authors %}
+        <input type="checkbox" id="author_{{ aut_item[0] }}" name="author" value="{{ aut_item[0] }}" {{'checked' if aut_item[1] == 'checked'}}>
+        <label for="author_{{ aut_item[0] }}">{{ aut_item[0] }}</label><br>
+        {% endfor %}
+    </p>
+
+    <input type="submit" value="Filtrovat">
+</form>

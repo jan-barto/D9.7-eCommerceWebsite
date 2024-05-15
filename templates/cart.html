@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Obsah košíku</h3>
+        </div>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="container">
+    <ul style="list-style: none">
+        {% for category, message in messages %}
+        <li class="alert alert-{{ category }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="container">
+
+    {% for item in cart_items %}
+    <div class="row p-1">
+        <hr>
+        <div class="col-2">
+            <a href="{{url_for('book_detail', id = item.id)}}"
+               style="color: inherit; text-decoration: none;">
+                <img src="static/book_img/{{ item.img_name }}" height=100>
+            </a>
+        </div>
+        <div class="col-6">
+            <h5>{{ item.name }}</h5>
+            <h6>{{ item.author }}</h6>
+        </div>
+        <div class="col-2">
+            {{ item.price }} CZK
+        </div>
+        <div class="col-2">
+            <a href="{{ url_for('remove_from_cart', item_id=item.id) }}">
+                ODEBRAT Z KOŠÍKU
+            </a>
+        </div>
+    </div>
+
+    {% endfor %}
+    <hr>
+</div>
+
+<div class="container">
+    <div class="row p-1">
+
+    </div>
+</div>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12 d-flex justify-content-end">
+            <h5>Celková cena (bez dopravy): {{ price }} CZK</h5>
+        </div>
+    </div>
+    <div class="row py-2">
+        <div class="col-md-12 d-flex justify-content-end">
+            <a href="{{ url_for('checkout_step_one') }}">
+            <button class="btn btn-outline-success"> Pokračovat k dopravě a platbě</button>
+                </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

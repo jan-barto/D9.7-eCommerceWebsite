@@ -1,0 +1,18 @@
+h4 {
+    padding-top: 2rem;
+}
+
+h5 {
+    color: green;
+}
+
+.form-group {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+form .form-group p {
+    font-weight: bold;
+}

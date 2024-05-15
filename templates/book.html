@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-12">
+
+                    <img src="static/book_img/{{ book.img_name }}">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="container">
+                <div class="row">
+
+                    <div class="col-12 m-2 p-2">
+
+                        <p>{{ book.category }} <br>
+                        <h5>{{ book.name }}</h5>
+                        <h6>{{ book.author }}</h6>
+                        <p>{{ book.description }}</p>
+                        <p>{{ book.price }} CZK <br>
+                          <a href="{{ url_for('add_to_cart', item_id=book.id) }}">
+                            DO KOŠÍKU
+                        </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+{% endblock %}

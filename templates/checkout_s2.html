@@ -23,7 +23,7 @@
         </thead>
         <tbody>
 
-        {% for item in cart_items %}
+        {% for item in items %}
         <tr>
             <td>
                 <a href="{{url_for('book_detail', id=item.id)}}" style="color: inherit; text-decoration: none;">
@@ -58,12 +58,12 @@
             </p>
             <p>
                 Dodací údaje:<br>
-                {% if not ship_details %}
+                {% if details.shipping_details == {} %}
                 <b>stejné jako fakturační<b>
                 {% else %}
-                <b>{{ details.shipping_name }}</b><br>
-                <b>{{ details.shipping_address }}</b><br>
-                <b>{{ details.shipping_city }} - {{ details.shipping_zip }}</b><br>
+                <b>{{ details.shipping_details.shipping_name }}</b><br>
+                <b>{{ details.shipping_details.shipping_address }}</b><br>
+                <b>{{ details.shipping_details.shipping_city }} - {{ details.shipping_details.shipping_zip }}</b><br>
                 {% endif %}
             </p>
         </div>
@@ -73,9 +73,9 @@
 <div class="container">
     <div class="row d-flex justify-content-end">
         <div class="col-md-4 ">
-            <h6>Cena za zboží: {{ price }} CZK</h6><br>
+            <h6>Cena za zboží: {{ details.price }} CZK</h6><br>
             <h6>Cena za dopravu: {{ details.price_two }} CZK</h6><br>
-            <h5>Cena celkem: {{ price + details.price_two }} CZK</h5><br>
+            <h5>Cena celkem: {{ details.price + details.price_two }} CZK</h5><br>
         </div>
     </div>
 

@@ -10,7 +10,6 @@ import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "123456789"
-app.config['SESSION_TYPE'] = 'filesystem'
 bootstrap = Bootstrap5(app)
 
 
@@ -35,24 +34,6 @@ class Book(db.Model):
 
 with app.app_context():
     db.create_all()
-
-# --------------------- EMAIL MANAGER ------------------------------------
-my_email = os.environ.get('MY_EMAIL')
-my_pw = os.environ.get('MY_PW')
-
-
-def send_email(order):
-    with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
-        msg = EmailMessage()
-        msg['Subject'] = "Potvzení objednávky."
-        msg['To'] = os.environ.get('MSG_TO')
-
-        html_content = render_template('confirmation_email_client.html', order=order)
-        msg.set_content(html_content, subtype='html')
-
-        connection.starttls()
-        connection.login(user=my_email, password=my_pw)
-        connection.send_message(msg)
 
 
 # --------------------- BOOKS BROWSING SECTION -----------------------------
@@ -176,7 +157,10 @@ def checkout_step_two():
     # payment & delivery price
     price_two = float(del_options[del_way][1] + pay_options[pay_way][1])
 
-    details = {
+    order_details = {
+        "price": price,
+        "price_two": price_two,
+
         "email": request.form.get('email'),
         "delivery": del_choice,
         "payment": payment_choice,
@@ -184,33 +168,50 @@ def checkout_step_two():
         "billing_address": request.form.get('billing_address'),
         "billing_city": request.form.get('billing_city'),
         "billing_zip": request.form.get('billing_zip'),
-        "price_two": price_two
+
+        "shipping_details": {}
     }
-    ship_details = {}
-    if request.form.get('another_address') == 'checked':
-        ship_details = {
+
+    if request.form.get('another_address') == 'on':
+        order_details["shipping_details"] = {
             "shipping_name": request.form.get('shipping_name'),
             "shipping_address": request.form.get('shipping_address'),
             "shipping_city": request.form.get('shipping_city'),
             "shipping_zip": request.form.get('shipping_zip')
         }
 
-    session['order'] = details
+    session['order'] = order_details
 
-    return render_template('checkout_s2.html',
-                           cart_items=items,
-                           price=price,
-                           details=details,
-                           ship_details=ship_details)
+    return render_template('checkout_s2.html', details=order_details, items=items)
+
+
+def send_email(content, client_email):
+    my_email = os.environ.get('MY_EMAIL')
+    my_pw = os.environ.get('MY_PW')
+
+    with smtplib.SMTP("smtp.gmail.com", port=587) as connection:
+        msg = EmailMessage()
+        msg['Subject'] = "Potvzení objednávky."
+        msg['To'] = client_email
+
+        msg.set_content(content, subtype='html')
+
+        connection.starttls()
+        connection.login(user=my_email, password=my_pw)
+        connection.send_message(msg)
 
 
 @app.route('/objednat_2', methods=(["GET", "POST"]))
 def checkout_step_three():
     order_details = session.get('order', {})
-    print(order_details)
-    # send email to customer
+    items, price = ids_to_objects()
 
-    # send email to owner
+    # send email to customer
+    html_content = render_template('confirmation_email_client.html', order=order_details, items=items)
+    send_email(html_content, order_details["email"])
+
+    # new entry in order-database and notify eshop-sales representative
+    # class Order(db.Model)
 
     return render_template('checkout_s3.html')
 

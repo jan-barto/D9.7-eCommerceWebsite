@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potvrzení objednávky</title>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px;">
+
+<p>Dobrý den,</p>
+
+<p>děkujeme za vaši objednávku. Zde zasíláme její shrnutí:</p>
+
+<h4>Objednané položky:</h4>
+<ul>
+    {% for item in items %}
+    <li>{{ item.name }} - {{ item.price }} Kč</li>
+    {% endfor %}
+</ul>
+
+<h4>Způsob platby a dodání:</h4>
+<ul>
+    <li>Způsob doručení: {{ order['delivery'] }}</li>
+    <li>Způsob platby: {{ order['payment'] }}</li>
+</ul>
+
+<h4>Fakturační údaje:</h4>
+<ul>
+    <li>Jméno: {{ order['billing_name'] }}</li>
+    <li>Ulice a č.p.: {{ order['billing_address'] }}</li>
+    <li>Město: {{ order['billing_city'] }}</li>
+    <li>PSČ: {{ order['billing_zip'] }}</li>
+</ul>
+
+
+<h4>Doručovací údaje:</h4>
+{% if order['shipping_details'] %}
+<p><strong>Jméno:</strong> {{ order['shipping_details']['shipping_name'] }}</p>
+<p><strong>Adresa:</strong> {{ order['shipping_details']['shipping_address'] }}, {{
+    order['shipping_details']['shipping_city'] }}, {{ order['shipping_details']['shipping_zip'] }}</p>
+
+{% else %}
+<ul>
+    <li>stejné jako fakturační</li>
+</ul>
+{% endif %}
+
+<h4>Cena a platební údaje</h4>
+<ul>
+    <li>Cena za zboží: {{ order.price }} Kč; cena za platbu a dopravu: {{ order.price_two }} Kč</li>
+    <li>Celková cena {{ order.price + order.price_two }} Kč (včetně dopravy a platby)</li>
+    <li style="color:red">Pokud jste zvolili platbu převodem, prosím zašlete platbu na účet: XXXX-XXXXX/XXXX, <br>
+        jako variabilní symbol uveďte číslo objednávky.
+    </li>
+</ul>
+
+<p>Děkujeme za nákup a těšíme se na vaši návštěvu!</p>
+
+</body>
+</html>

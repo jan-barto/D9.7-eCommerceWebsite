@@ -23,13 +23,48 @@ db.init_app(app)
 
 
 class Book(db.Model):
+    __tablename__ = "books"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(250), nullable=False)
     author: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str] = mapped_column(String(500), nullable=False)
     category: Mapped[str] = mapped_column(String(500), nullable=False)
     img_name: Mapped[str] = mapped_column(String(500), nullable=True)
-    price: Mapped[float] = mapped_column(Float(10), nullable=False)
+    price: Mapped[float] = mapped_column(Float, nullable=False)
+    order_books: Mapped[list['OrderBook']] = db.relationship('OrderBook', back_populates='book')
+
+
+class Order(db.Model):
+    __tablename__ = "orders"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_email: Mapped[str] = mapped_column(String(500), nullable=False)
+    status: Mapped[str] = mapped_column(String(100), nullable=False)
+
+    delivery_option: Mapped[str] = mapped_column(String(100), nullable=False)
+    payment_option: Mapped[str] = mapped_column(String(100), nullable=False)
+    price: Mapped[int] = mapped_column(Integer, nullable=False)
+    price_two: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    billing_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    billing_address: Mapped[str] = mapped_column(String(500), nullable=False)
+    billing_city: Mapped[str] = mapped_column(String(100), nullable=False)
+    billing_zip: Mapped[str] = mapped_column(String(20), nullable=False)
+
+    shipping_name: Mapped[str] = mapped_column(String(100), nullable=True)
+    shipping_address: Mapped[str] = mapped_column(String(500), nullable=True)
+    shipping_city: Mapped[str] = mapped_column(String(100), nullable=True)
+    shipping_zip: Mapped[str] = mapped_column(String(20), nullable=True)
+
+    order_books: Mapped[list['OrderBook']] = db.relationship('OrderBook', back_populates='order')
+
+
+class OrderBook(db.Model):  # Zde také použít db.Model
+    __tablename__ = 'order_books'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    book_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("books.id"), nullable=False)
+    order_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("orders.id"), nullable=False)
+    book: Mapped['Book'] = db.relationship('Book', back_populates='order_books')
+    order: Mapped['Order'] = db.relationship('Order', back_populates='order_books')
 
 
 with app.app_context():
@@ -179,6 +214,13 @@ def checkout_step_two():
             "shipping_city": request.form.get('shipping_city'),
             "shipping_zip": request.form.get('shipping_zip')
         }
+    else:
+        order_details["shipping_details"] = {
+            "shipping_name": request.form.get('billing_name'),
+            "shipping_address": request.form.get('billing_address'),
+            "shipping_city": request.form.get('billing_city'),
+            "shipping_zip": request.form.get('billing_zip')
+        }
 
     session['order'] = order_details
 
@@ -195,10 +237,14 @@ def send_email(content, client_email):
         msg['To'] = client_email
 
         msg.set_content(content, subtype='html')
-
         connection.starttls()
         connection.login(user=my_email, password=my_pw)
         connection.send_message(msg)
+
+
+def send_email_eco(content, client_email):
+    print(content)
+    print(client_email)
 
 
 @app.route('/objednat_2', methods=(["GET", "POST"]))
@@ -208,12 +254,75 @@ def checkout_step_three():
 
     # send email to customer
     html_content = render_template('confirmation_email_client.html', order=order_details, items=items)
-    send_email(html_content, order_details["email"])
+    send_email_eco(html_content, order_details["email"])
 
-    # new entry in order-database and notify eshop-sales representative
-    # class Order(db.Model)
+    # new entry in order-database
+    new_order = Order(
+        user_email=order_details["email"],
+        status="Nová",
 
+        delivery_option=order_details.get("delivery"),
+        payment_option=order_details.get("payment"),
+        price=order_details.get("price"),
+        price_two=order_details.get("price_two"),
+
+        billing_name=order_details.get("billing_name"),
+        billing_address=order_details.get("billing_address"),
+        billing_city=order_details.get("billing_city"),
+        billing_zip=order_details.get("billing_zip"),
+
+        shipping_name=order_details.get("shipping_name"),
+        shipping_address=order_details.get("shipping_address"),
+        shipping_city=order_details.get("shipping_city"),
+        shipping_zip=order_details.get("shipping_zip")
+    )
+    db.session.add(new_order)
+    db.session.commit()
+
+    # connecting orders and books
+    for item in items:
+        order_book_entry = OrderBook(order_id=new_order.id, book_id=item.id)
+        db.session.add(order_book_entry)
+    db.session.commit()
+
+    # notify eshop-sales representative
+    # tbd
     return render_template('checkout_s3.html')
+
+
+# --------------------- ADMIN SECTION  -----------------------------
+@app.route('/admin_orders')
+def admin_orders():
+    orders = Order.query.all()
+    order_list = []
+    for order in orders:
+        order_info = {
+            'id': order.id,
+            'user_email': order.user_email,
+            'status': order.status,
+            'delivery_option': order.delivery_option,
+            'payment_option': order.payment_option,
+            'billing_name': order.billing_name,
+            'billing_address': order.billing_address,
+            'billing_city': order.billing_city,
+            'billing_zip': order.billing_zip,
+            'shipping_name': order.shipping_name,
+            'shipping_address': order.shipping_address,
+            'shipping_city': order.shipping_city,
+            'shipping_zip': order.shipping_zip,
+            'items': []
+        }
+        for order_book in order.order_books:
+            book = Book.query.get(order_book.book_id)
+            order_info['items'].append({
+                'id': book.id,
+                'name': book.name,
+                'author': book.author,
+                'price': book.price
+            })
+        order_list.append(order_info)
+
+    return render_template('admin_orders.html', orders=order_list)
 
 
 # --------------------- CoONDITION SECTION + OTHERS  -----------------------------

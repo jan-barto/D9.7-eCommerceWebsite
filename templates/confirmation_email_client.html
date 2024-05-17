@@ -34,16 +34,13 @@
 
 
 <h4>Doručovací údaje:</h4>
-{% if order['shipping_details'] %}
-<p><strong>Jméno:</strong> {{ order['shipping_details']['shipping_name'] }}</p>
-<p><strong>Adresa:</strong> {{ order['shipping_details']['shipping_address'] }}, {{
-    order['shipping_details']['shipping_city'] }}, {{ order['shipping_details']['shipping_zip'] }}</p>
-
-{% else %}
 <ul>
-    <li>stejné jako fakturační</li>
+    <li>Jméno: {{ order['shipping_name'] }}</li>
+    <li>Ulice a č.p.: {{ order['shipping_address'] }}</li>
+    <li>Město: {{ order['shipping_city'] }}</li>
+    <li>PSČ: {{ order['shipping_zip'] }}</li>
 </ul>
-{% endif %}
+
 
 <h4>Cena a platební údaje</h4>
 <ul>

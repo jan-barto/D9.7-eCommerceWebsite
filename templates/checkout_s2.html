@@ -58,13 +58,9 @@
             </p>
             <p>
                 Dodací údaje:<br>
-                {% if details.shipping_details == {} %}
-                <b>stejné jako fakturační<b>
-                {% else %}
                 <b>{{ details.shipping_details.shipping_name }}</b><br>
                 <b>{{ details.shipping_details.shipping_address }}</b><br>
-                <b>{{ details.shipping_details.shipping_city }} - {{ details.shipping_details.shipping_zip }}</b><br>
-                {% endif %}
+                <b>{{ details.shipping_details.shipping_city }} - {{ details.shipping_details.shipping_zip }}</b><br
             </p>
         </div>
     </div>

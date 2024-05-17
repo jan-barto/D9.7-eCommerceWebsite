@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <h3>Objednávky</h3>
+    <div class="row">
+        {% for order in orders %}
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Objednávka č. {{ order.id }}</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <p><strong>Email uživatele:</strong><br> {{ order.user_email }}</p>
+                            <p><strong>Stav:</strong><br> {{ order.status }}</p>
+                            <p><strong>Způsob doručení:</strong><br> {{ order.delivery_option }}</p>
+                            <p><strong>Způsob platby:</strong><br> {{ order.payment_option }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>Jméno na fakturaci:</strong><br> {{ order.billing_name }}</p>
+                            <p><strong>Fakturační adresa:</strong><br> {{ order.billing_address }}</p>
+                            <p><strong>Fakturační město:</strong><br> {{ order.billing_city }}</p>
+                            <p><strong>Fakturační PSČ:</strong><br> {{ order.billing_zip }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p><strong>Jméno pro doručení:</strong><br> {{ order.shipping_name }}</p>
+                            <p><strong>Doručovací adresa:</strong><br> {{ order.shipping_address }}</p>
+                            <p><strong>Doručovací město:</strong><br> {{ order.shipping_city }}</p>
+                            <p><strong>Doručovací PSČ:</strong><br> {{ order.shipping_zip }}</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h6>Položky:</h6>
+                            <ul>
+                                {% for order_item in order['items'] %}
+                                <li>{{ order_item.name }} od {{ order_item.author }} - {{ order_item.price }} Kč</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

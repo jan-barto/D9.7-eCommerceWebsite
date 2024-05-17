@@ -7,6 +7,7 @@ import random
 import smtplib
 from email.message import EmailMessage
 import os
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "123456789"
@@ -20,6 +21,14 @@ class Base(DeclarativeBase):
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db'
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
+
+
+class User(UserMixin, db.Model):
+    __tablename__ = "users"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(250), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(250), nullable=True)
+    password: Mapped[str] = mapped_column(String(250), nullable=False)
 
 
 class Book(db.Model):
@@ -69,6 +78,9 @@ class OrderBook(db.Model):  # Zde také použít db.Model
 
 with app.app_context():
     db.create_all()
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 
 # --------------------- BOOKS BROWSING SECTION -----------------------------
@@ -292,7 +304,39 @@ def checkout_step_three():
 
 
 # --------------------- ADMIN SECTION  -----------------------------
+@login_manager.user_loader
+def admin_load(user_id):
+    user_to_load = db.session.execute(db.select(User).where(User.id == user_id)).scalar()
+    return user_to_load
+
+
+@app.route('/admin_login', methods=["GET", "POST"])
+def admin_login():
+    if request.method == "POST":
+        name = request.form.get("name")
+        password = request.form.get("password")
+        print(name, password)
+        try:
+            user_to_login = db.session.execute(db.select(User).where(User.name == name)).scalar()
+            if user_to_login.password == password:
+                login_user(user_to_login)
+                return redirect(url_for('home'))
+            else:
+                flash("Špatné jméno nebo heslo.")
+        except Exception as e:
+            flash("Chyba při přihlašování: " + str(e))
+
+    return render_template("admin_login.html")
+
+
+@app.route('/logout')
+def admin_logout():
+    logout_user()
+    return redirect(url_for('home'))
+
+
 @app.route('/admin_orders')
+@login_required
 def admin_orders():
     orders = Order.query.all()
     order_list = []
@@ -355,6 +399,13 @@ def import_records():
         )
         db.session.add(new_entry)
         db.session.commit()
+
+    new_admin = User(
+        name="admin",
+        password="admin"
+    )
+    db.session.add(new_admin)
+    db.session.commit()
 
     return redirect(url_for('home'))
 

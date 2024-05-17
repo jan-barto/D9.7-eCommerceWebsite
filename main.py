@@ -204,25 +204,26 @@ def checkout_step_two():
         "billing_city": request.form.get('billing_city'),
         "billing_zip": request.form.get('billing_zip'),
 
-        "shipping_details": {}
     }
 
     if request.form.get('another_address') == 'on':
-        order_details["shipping_details"] = {
+        shipping_details = {
             "shipping_name": request.form.get('shipping_name'),
             "shipping_address": request.form.get('shipping_address'),
             "shipping_city": request.form.get('shipping_city'),
             "shipping_zip": request.form.get('shipping_zip')
         }
     else:
-        order_details["shipping_details"] = {
+        shipping_details = {
             "shipping_name": request.form.get('billing_name'),
             "shipping_address": request.form.get('billing_address'),
             "shipping_city": request.form.get('billing_city'),
             "shipping_zip": request.form.get('billing_zip')
         }
 
+    order_details.update(shipping_details)
     session['order'] = order_details
+    print(order_details)
 
     return render_template('checkout_s2.html', details=order_details, items=items)
 
